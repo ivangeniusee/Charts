@@ -48,13 +48,13 @@ open class BarLineScatterCandleBubbleRenderer: DataRenderer
     open class XBounds
     {
         /// minimum visible entry index
-        open var min: Int = 0
+        open private(set) var min: Int = 0
 
         /// maximum visible entry index
-        open var max: Int = 0
+        open private(set) var max: Int = 0
 
         /// range of visible entry indices
-        open var range: Int = 0
+        open private(set) var range: Int = 0
 
         public init()
         {
@@ -88,33 +88,10 @@ open class BarLineScatterCandleBubbleRenderer: DataRenderer
     }
 }
 
-extension BarLineScatterCandleBubbleRenderer.XBounds: RangeExpression {
-    public func relative<C>(to collection: C) -> Swift.Range<Int>
-        where C : Collection, Bound == C.Index
-    {
-        return Swift.Range<Int>(min...min + range)
-    }
-
-    public func contains(_ element: Int) -> Bool {
-        return (min...min + range).contains(element)
-    }
-}
-
 extension BarLineScatterCandleBubbleRenderer.XBounds: Sequence {
-    public struct Iterator: IteratorProtocol {
-        private var iterator: IndexingIterator<ClosedRange<Int>>
-        
-        fileprivate init(min: Int, max: Int) {
-            self.iterator = (min...max).makeIterator()
-        }
-        
-        public mutating func next() -> Int? {
-            return self.iterator.next()
-        }
-    }
     
-    public func makeIterator() -> Iterator {
-        return Iterator(min: self.min, max: self.min + self.range)
+    public func makeIterator() -> StrideThrough<Int>.Iterator {
+        stride(from: min, through: min + range, by: 1).makeIterator()
     }
 }
 
